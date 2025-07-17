@@ -1,7 +1,8 @@
-import { config } from "dotenv";
-config();
+import { config } from 'dotenv';
+import twilio from 'twilio';
 
-import twilio from "twilio";
+// Load env vars for local dev (Vercel loads them automatically)
+config();
 
 const client = twilio(
   process.env.TWILIO_ACCOUNT_SID,
@@ -9,17 +10,17 @@ const client = twilio(
 );
 
 export default async function handler(req, res) {
-  // Handle CORS preflight
+  // 🔒 Set CORS headers for all responses
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // ✅ Handle preflight requests
   if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     return res.status(204).end();
   }
 
-  // Normal CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-
+  // ❌ Block other non-POST methods
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Only POST allowed' });
   }
@@ -27,15 +28,14 @@ export default async function handler(req, res) {
   const { phone, url, note } = req.body;
 
   if (!phone || !url) {
-    return res.status(400).json({ message: "Phone and URL are required" });
+    return res.status(400).json({ message: 'Phone and URL are required' });
   }
 
-  const cleanedPhone = phone.replace(/\s+/g, "");
-
+  const cleanedPhone = phone.replace(/\s+/g, '');
   const messageBody = `
 📝 *Saved Link*
 🔗 URL: ${url}
-🗒️ Note: ${note || "No note"}
+🗒️ Note: ${note || 'No note'}
   `;
 
   try {
@@ -45,9 +45,9 @@ export default async function handler(req, res) {
       to: `whatsapp:${cleanedPhone}`
     });
 
-    return res.status(200).json({ message: "Message sent!", sid: message.sid });
+    return res.status(200).json({ message: 'Message sent!', sid: message.sid });
   } catch (error) {
-    console.error("Twilio error:", error);
-    return res.status(500).json({ message: "Failed to send message", error: error.message });
+    console.error('Twilio error:', error);
+    return res.status(500).json({ message: 'Failed to send message', error: error.message });
   }
 }
