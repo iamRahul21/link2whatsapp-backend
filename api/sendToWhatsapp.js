@@ -14,9 +14,10 @@ export default async function handler(req, res) {
   console.log('Incoming request:', req.method);
   console.log('Request body:', req.body);
   // Always set CORS headers for every response
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const extensionOrigin = 'chrome-extension://eijclhdklmbblgdnoigjnlacbfanppnk';
+  res.setHeader('Access-Control-Allow-Origin', extensionOrigin);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
   // Optionally allow credentials if needed
   // res.setHeader('Access-Control-Allow-Credentials', 'true');
 
