@@ -13,14 +13,17 @@ const client = twilio(
 export default async function handler(req, res) {
   console.log('Incoming request:', req.method);
   console.log('Request body:', req.body);
-  // Always set CORS headers
+  // Always set CORS headers for every response
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  // Optionally allow credentials if needed
+  // res.setHeader('Access-Control-Allow-Credentials', 'true');
 
   if (req.method === 'OPTIONS') {
     console.log('Handling OPTIONS preflight');
-    res.status(204).end();
+    // Respond with 200 and all CORS headers
+    res.status(200).end();
     return;
   }
 
