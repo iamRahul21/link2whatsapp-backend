@@ -1,7 +1,7 @@
 import { config } from 'dotenv';
 import twilio from 'twilio';
 
-// Load env vars for local dev (Vercel loads them automatically)
+// Load local env vars
 config();
 
 const client = twilio(
@@ -9,18 +9,22 @@ const client = twilio(
   process.env.TWILIO_AUTH_TOKEN
 );
 
-export default async function handler(req, res) {
-  // 🔒 Set CORS headers for all responses
-  res.setHeader('Access-Control-Allow-Origin', '*');
+// ✅ Custom CORS middleware
+function applyCors(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*'); // or your extension origin
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // ✅ Handle preflight requests
   if (req.method === 'OPTIONS') {
-    return res.status(204).end();
+    res.status(204).end();
+    return true; // ended response
   }
+  return false;
+}
 
-  // ❌ Block other non-POST methods
+export default async function handler(req, res) {
+  if (applyCors(req, res)) return; // handled preflight
+
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Only POST allowed' });
   }
