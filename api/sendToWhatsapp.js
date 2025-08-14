@@ -44,6 +44,13 @@ export default async function handler(req, res) {
     });
     res.status(200).json({ message: 'Message sent!', sid: message.sid });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to send message', error: error.message });
+    // Return full Twilio error details for debugging
+    res.status(500).json({
+      message: 'Failed to send message',
+      error: error.message,
+      code: error.code,
+      moreInfo: error.moreInfo,
+      details: error.details
+    });
   }
 }
